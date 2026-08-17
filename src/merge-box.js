@@ -86,7 +86,7 @@
 
   /**
    * バナーを描画する。同じ内容のバナーが既にあれば何もしない。
-   * マージボックスの直前に置く。
+   * 置き場所は insertBanner() を参照。
    */
   const renderBanner = (box, { status, method, baseRef }) => {
     const message = buildMessage({ status, method, baseRef });
@@ -115,16 +115,35 @@
     body.textContent = message.body;
 
     banner.append(title, body);
+    insertBanner(box, banner);
+  };
 
-    // マージボックスと同じ左余白を持つ外枠に入れて、枠線の開始位置を揃える
+  /**
+   * バナーを挿入する。マージボタンを含む枠(mergebox-border-container)の直下に置く。
+   * 枠の外側は既にマージボックスの左余白の内側なので、余白クラスは付けない。
+   *
+   * 枠が見つからない場合(旧 UI など)はマージボックス全体の直後に置き、
+   * そのときはマージボックスの左余白クラスを写して位置を揃える。
+   */
+  const insertBanner = (box, banner) => {
+    const border = box.matches('[data-testid="mergebox-border-container"]')
+      ? box
+      : box.querySelector('[data-testid="mergebox-border-container"]');
+
     const wrapper = document.createElement('div');
-    wrapper.className = [WRAPPER_CLASS, ...alignmentClassesOf(box)].join(' ');
     wrapper.append(banner);
 
+    if (border && border.parentElement) {
+      wrapper.className = WRAPPER_CLASS;
+      border.insertAdjacentElement('afterend', wrapper);
+      return;
+    }
+
+    wrapper.className = [WRAPPER_CLASS, ...alignmentClassesOf(box)].join(' ');
     if (box.parentElement) {
-      box.parentElement.insertBefore(wrapper, box);
+      box.insertAdjacentElement('afterend', wrapper);
     } else {
-      box.prepend(wrapper);
+      box.append(wrapper);
     }
   };
 
