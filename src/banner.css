@@ -1,17 +1,11 @@
 /*
- * マージボックスの直前に出すバナー。
+ * マージ方法を切り替えたことを伝えるバナー。
  * 色は GitHub の CSS 変数を参照し、ダークテーマにもそのまま追従する。
  * 変数が無い環境向けに、フォールバック値をライトテーマの色で持つ。
  */
 
-/*
- * 外枠。マージボタンを含む枠の直下に置くため、上の余白だけを持つ。
- * マージボックス全体の直後へ置く場合(旧 UI など)は、マージボックスの
- * 左余白クラス(tmp-ml-md-6 / tmp-pl-md-3 など)を JavaScript 側で写して付ける。
- * margin のショートハンドは使わない。写した左マージンを打ち消すため。
- */
 .pmms-banner-wrap {
-  margin-top: 8px;
+  min-width: 0;
 }
 
 .pmms-banner {
@@ -19,13 +13,31 @@
   flex-wrap: wrap;
   align-items: baseline;
   gap: 8px;
+  color: var(--fgColor-default, #1f2328);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/*
+ * マージボタンの区画の中に置く形。枠線と背景はマージボックスのものを使い、
+ * ボタン行との間に区切り線だけを引いて、マージボックスの一部として見せる。
+ */
+.pmms-banner--fused {
+  margin-top: 12px;
+  padding-top: 8px;
+  border-top: 1px solid var(--borderColor-muted, #d1d9e0);
+}
+
+/*
+ * マージボックスの外に独立した枠として置く形(旧 UI 向けのフォールバック)。
+ * margin のショートハンドは使わない。外枠に写した左マージンを打ち消すため。
+ */
+.pmms-banner--standalone {
+  margin-top: 8px;
   padding: 8px 12px;
   border: 1px solid var(--borderColor-default, #d1d9e0);
   border-radius: 6px;
   background-color: var(--bgColor-muted, #f6f8fa);
-  color: var(--fgColor-default, #1f2328);
-  font-size: 12px;
-  line-height: 1.5;
 }
 
 .pmms-banner-title {
@@ -43,12 +55,16 @@
   min-width: 0;
 }
 
-.pmms-banner[data-pmms-status='failed'] {
-  border-color: var(--borderColor-danger-emphasis, #cf222e);
-  background-color: var(--bgColor-danger-muted, #fff8f8);
-}
-
 .pmms-banner[data-pmms-status='failed'] .pmms-banner-title {
   border-color: var(--borderColor-danger-emphasis, #cf222e);
   color: var(--fgColor-danger, #cf222e);
+}
+
+.pmms-banner--fused[data-pmms-status='failed'] .pmms-banner-body {
+  color: var(--fgColor-danger, #cf222e);
+}
+
+.pmms-banner--standalone[data-pmms-status='failed'] {
+  border-color: var(--borderColor-danger-emphasis, #cf222e);
+  background-color: var(--bgColor-danger-muted, #fff8f8);
 }

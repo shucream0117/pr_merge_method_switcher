@@ -119,32 +119,49 @@
   };
 
   /**
-   * バナーを挿入する。マージボタンを含む枠(mergebox-border-container)の直下に置く。
-   * 枠の外側は既にマージボックスの左余白の内側なので、余白クラスは付けない。
+   * バナーを挿入する。
    *
-   * 枠が見つからない場合(旧 UI など)はマージボックス全体の直後に置き、
-   * そのときはマージボックスの左余白クラスを写して位置を揃える。
+   * 第一候補はマージボタンが入っている区画の中。枠線も背景もマージボックスのものを
+   * そのまま使い、ボタン行との間に区切り線だけを引いて、マージボックスの一部として見せる。
+   *
+   * 区画が見つからない場合(旧 UI など)は独立した枠として、マージボックス全体の直後に
+   * 置く。そのときはマージボックスの左余白クラスを写して位置を揃える。
    */
   const insertBanner = (box, banner) => {
-    const border = box.matches('[data-testid="mergebox-border-container"]')
-      ? box
-      : box.querySelector('[data-testid="mergebox-border-container"]');
-
     const wrapper = document.createElement('div');
     wrapper.append(banner);
 
-    if (border && border.parentElement) {
+    const actions = actionsBlockOf(box);
+    if (actions) {
       wrapper.className = WRAPPER_CLASS;
-      border.insertAdjacentElement('afterend', wrapper);
+      banner.classList.add(`${BANNER_CLASS}--fused`);
+      actions.append(wrapper);
       return;
     }
 
     wrapper.className = [WRAPPER_CLASS, ...alignmentClassesOf(box)].join(' ');
+    banner.classList.add(`${BANNER_CLASS}--standalone`);
     if (box.parentElement) {
       box.insertAdjacentElement('afterend', wrapper);
     } else {
       box.append(wrapper);
     }
+  };
+
+  /**
+   * マージボタンが入っている区画(枠の中の最後のブロック)を返す。
+   * 枠の直下の子のうち、マージボタンを含むものを探す。
+   */
+  const actionsBlockOf = (box) => {
+    const border = box.matches('[data-testid="mergebox-border-container"]')
+      ? box
+      : box.querySelector('[data-testid="mergebox-border-container"]');
+    const primary = PMMS.dom.findPrimaryButton(box);
+    if (!border || !primary || !border.contains(primary)) return null;
+
+    let node = primary;
+    while (node.parentElement && node.parentElement !== border) node = node.parentElement;
+    return node.parentElement === border ? node : null;
   };
 
   /**
