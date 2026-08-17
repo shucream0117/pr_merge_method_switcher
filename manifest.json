@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "PR Merge Method Switcher",
+  "version": "0.1.0",
+  "description": "GitHub の PR で、マージ先ブランチに応じてマージ方法を自動選択します。",
+  "content_scripts": [
+    {
+      "matches": ["https://github.com/*/*/pull/*"],
+      "js": [
+        "src/rules.js",
+        "src/matcher.js",
+        "src/dom-adapter.js",
+        "src/merge-box.js",
+        "src/content.js"
+      ],
+      "css": ["src/banner.css"],
+      "run_at": "document_idle"
+    }
+  ]
+}
